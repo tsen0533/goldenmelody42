@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首注音猜歌挑戰</title>
+  <style>
+    body {
+      font-family: "微軟正黑體", sans-serif;
+      padding: 30px;
+      line-height: 1.8;
+      background-color: #fffefc;
+      max-width: 800px;
+      margin: auto;
+      background-image: url("IMG_1000.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+    h2 {
+      color: #333;
+    }
+    .question {
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 20px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .submit-btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #005c99;
+    }
+    .note {
+      background: #f9f9f9;
+      border-left: 5px solid #ccc;
+      padding: 15px;
+      margin-bottom: 30px;
+    }
+    .hint {
+      display: none;
+      margin-top: 5px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+<h2>🎵 首注音猜歌挑戰 🎵</h2>
+<div class="note">
+  <p><strong>｜遊戲規則｜</strong></p>
+  <ul>
+    <li>本遊戲共 9 題，根據提示的注音文字，輸入此句歌詞所對應到的歌名。</li>
+    <li><strong>只需輸入中文，不需標點符號、英文或空格</strong>。</li>
+    <li>猜對一題得分如下：<br> 👉 未看提示得 <strong>2分</strong>、看過提示得 <strong>1分</strong>。</li>
+    <li>完成後，系統會根據你的得分給出回饋！</li>
+  </ul>
+  <p><strong>｜示範題｜</strong></p>
+  <p>提示：ㄆㄈ ㄐㄎ ㄎㄌ ㄨㄨㄍㄔ ㄕㄍㄐㄍ</p>
+  <p>正解：第四十二屆政大金旋獎主題曲〈平凡健康快樂 Ordinary, healthy and happy〉中的歌詞「平凡 健康 快樂／往往過程 勝過結果」</p>
+  <p>答案只需輸入：<strong><span style="color: red;">平凡健康快樂</span></strong>即可</p>
+</div>
+
+<form id="quizForm"></form>
+
+<button type="submit" class="submit-btn" onclick="submitAnswers()">提交答案</button>
+
+<div class="result" id="result"></div>
+
+<script>
+  const questions = [
+    "光：ㄧㄧㄕ光 ㄋㄕㄐ ㄕㄕㄇㄊㄉㄘㄧ",
+    "照：ㄨㄈㄓㄋㄒㄐ照ㄆ ㄕㄌㄨㄓㄌㄅㄍㄐㄉㄐㄅ",
+    "亮：ㄧㄎㄓㄗ亮ㄉㄒ ㄋㄈㄊㄑ",
+    "你：你ㄓㄉ ㄐㄙㄉㄩㄖㄓㄗㄔㄕㄉㄉ",
+    "的：ㄎㄅㄨ的ㄅㄕㄉㄉㄗ",
+    "音：ㄦㄨㄊㄐㄒㄩㄉㄕ音，ㄒㄑㄋㄩㄔㄩㄕㄞㄑ",
+    "樂：ㄓㄕㄏㄧㄉㄧ樂ㄏㄏㄒㄓㄓ ㄧㄗㄇㄊㄋ",
+    "夢：ㄨㄓㄉ ㄨㄉㄨㄌㄅㄕ夢",
+    "想：ㄕ 想ㄧㄓㄉㄨ"
+  ];
+
+  const answers = [
+    "逆光",
+    "重感情的廢物",
+    "夜空中最亮的星",
+    "小情歌",
+    "安九",
+    "聽見下雨的聲音",
+    "說好的幸福呢",
+    "我的未來不是夢",
+    "誰"
+  ];
+
+  const singers = [
+    "孫燕姿",
+    "周杰倫",
+    "逃跑計劃",
+    "蘇打綠",
+    "安九",
+    "魏如萱",
+    "周杰倫",
+    "張雨生",
+    "林俊傑"
+  ];
+
+  const usedHint = Array(questions.length).fill(false);
+
+  const form = document.getElementById("quizForm");
+
+  questions.forEach((text, index) => {
+    const div = document.createElement("div");
+    div.className = "question";
+
+    const label = document.createElement("label");
+    label.innerHTML = `<strong>${index + 1}. ${text}</strong>`;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = `q${index + 1}`;
+
+    const hintBtn = document.createElement("button");
+    hintBtn.type = "button";
+    hintBtn.innerText = "提示";
+    hintBtn.onclick = () => {
+      usedHint[index] = true;
+      hintDiv.style.display = "block";
+    };
+
+    const hintDiv = document.createElement("div");
+    hintDiv.className = "hint";
+    hintDiv.innerText = `歌手：${singers[index]}`;
+
+    div.appendChild(label);
+    div.appendChild(input);
+    div.appendChild(hintBtn);
+    div.appendChild(hintDiv);
+
+    form.appendChild(div);
+  });
+
+  function submitAnswers() {
+    let score = 0;
+    const inputs = document.querySelectorAll("input[type='text']");
+
+    inputs.forEach((input, index) => {
+      const userAnswer = input.value.trim().replace(/\s+/g, '');
+      const correctAnswer = answers[index].replace(/\s+/g, '');
+      if (userAnswer === correctAnswer) {
+        score += usedHint[index] ? 1 : 2;
+      }
+    });
+
+    // 顯示結果或跳轉
+    window.location.href = `result.html?score=${score}`;
+  }
+</script>
+</body>
+</html>
